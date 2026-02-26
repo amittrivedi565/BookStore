@@ -73,7 +73,6 @@ func (db *DB) CreateCategory(category *models.Category) (int64, error) {
 	return res.LastInsertId()
 }
 
-
 func (db *DB) UpdateCategory(id int, category *models.Category) error {
 
 	query := `
