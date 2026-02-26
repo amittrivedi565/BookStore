@@ -263,6 +263,7 @@ func (db *DB) GetBooksByCategory(categoryName string) ([]models.BookResponse, er
 		b.title,
 		b.description,
 		a.name,
+		c.name,
 		b.price,
 		b.stock,
 		b.isbn
@@ -287,7 +288,8 @@ func (db *DB) GetBooksByCategory(categoryName string) ([]models.BookResponse, er
 			&book.ID,
 			&book.Title,
 			&book.Description,
-			&book.Author,
+			&book.Author.Name,
+			&book.Category.Name,
 			&book.Price,
 			&book.Stock,
 			&book.ISBN,
