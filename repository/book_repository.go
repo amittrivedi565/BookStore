@@ -198,43 +198,53 @@ func (db *DB) DeleteBook(bookId int) error {
 	return nil
 }
 
-func (db *DB) GetBooksByAuthorName(authorName string) ([]models.Book, error) {
+func (db *DB) GetBooksByAuthorName(authorName string) ([]models.BookResponse, error) {
 
 	query := `
 	SELECT 
-		b.id, 
-		b.title, 
+		b.id,
+		b.title,
 		b.description,
-		b.author_id,
-		b.category_id,
 		b.price,
 		b.stock,
-		b.isbn
+		b.isbn,
+
+		a.id,
+		a.name,
+
+		c.id,
+		c.name
+
 	FROM books b
 	JOIN authors a ON b.author_id = a.id
-	WHERE a.name = ?
+	JOIN categories c ON b.category_id = c.id
+	WHERE a.name LIKE ?
 	`
 
-	rows, err := db.DB.Query(query, authorName)
+	rows, err := db.DB.Query(query, "%"+authorName+"%")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var books []models.Book
+	var books []models.BookResponse
 
 	for rows.Next() {
-		var book models.Book
+		var book models.BookResponse
 
 		if err := rows.Scan(
 			&book.ID,
 			&book.Title,
 			&book.Description,
-			&book.AuthorId,
-			&book.CategoryId,
 			&book.Price,
 			&book.Stock,
-			&book.Isbn,
+			&book.ISBN,
+
+			&book.Author.ID,
+			&book.Author.Name,
+
+			&book.Category.ID,
+			&book.Category.Name,
 		); err != nil {
 			return nil, err
 		}
@@ -242,11 +252,7 @@ func (db *DB) GetBooksByAuthorName(authorName string) ([]models.Book, error) {
 		books = append(books, book)
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return books, nil
+	return books, rows.Err()
 }
 
 func (db *DB) GetBooksByCategory(categoryName string) ([]models.BookResponse, error) {
@@ -257,6 +263,7 @@ func (db *DB) GetBooksByCategory(categoryName string) ([]models.BookResponse, er
 		b.title,
 		b.description,
 		a.name,
+		c.name,
 		b.price,
 		b.stock,
 		b.isbn
@@ -281,7 +288,8 @@ func (db *DB) GetBooksByCategory(categoryName string) ([]models.BookResponse, er
 			&book.ID,
 			&book.Title,
 			&book.Description,
-			&book.Author,
+			&book.Author.Name,
+			&book.Category.Name,
 			&book.Price,
 			&book.Stock,
 			&book.ISBN,

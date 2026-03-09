@@ -8,7 +8,7 @@ import (
 )
 
 func InitDB() *sql.DB {
-	dsn := "root:password@tcp(127.0.0.1:3306)/bookstore?parseTime=true"
+	dsn := "root@tcp(127.0.0.1:3306)/foobar"
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
